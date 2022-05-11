@@ -12,4 +12,8 @@ lazy val `test-vite` = project
       _.withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("testvite")))
     },
+
+    libraryDependencies ++= Seq(
+      "com.raquo" %%% "laminar" % "0.14.2",
+    ),
   )

@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Scala stuff
+.bloop/
+.bsp/
+.metals/
+target/
+metals.sbt

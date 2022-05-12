@@ -16,18 +16,28 @@ object Main {
     def apply(): DataItem = DataItem(DataItemID(), "?", Math.random())
   }
 
-  val data = Var[List[DataItem]](List(DataItem(DataItemID(), "one", 1.0)))
-  val allValues = data.signal.map(_.map(_.value))
+  val dataVar = Var[List[DataItem]](List(DataItem(DataItemID(), "one", 1.0)))
+  val dataSignal = dataVar.signal
+  val allValues = dataSignal.map(_.map(_.value))
 
-  def appElement = div(
-    h1("Hello Vite!"),
-    renderDataTable(),
-    ul(
-      li("Sum of values: ", child.text <-- allValues.map(_.sum)),
-      li("Average value: ", child.text <-- allValues.map(vs => vs.sum / vs.size)),
-    ),
-    renderDataGraph(),
-  )
+  def main(args: Array[String]): Unit = {
+    // Laminar initialization boilerplate
+    documentEvents.onDomContentLoaded.foreach { _ =>
+      render(dom.document.querySelector("#app"), appElement())
+    } (unsafeWindowOwner)
+  }
+
+  def appElement() = {
+    div(
+      h1("Hello Vite!"),
+      renderDataTable(),
+      ul(
+        li("Sum of values: ", child.text <-- allValues.map(_.sum)),
+        li("Average value: ", child.text <-- allValues.map(vs => vs.sum / vs.size)),
+      ),
+      renderDataGraph(),
+    )
+  }
 
   def renderDataTable() = {
     table(
@@ -35,29 +45,29 @@ object Main {
         tr(th("Label"), th("Value"), th("Action")),
       ),
       tbody(
-        children <-- data.signal.split(_.id) { (id, initial, itemSignal) =>
+        children <-- dataSignal.split(_.id) { (id, initial, itemSignal) =>
           renderDataItem(id, itemSignal)
         }
       ),
       tfoot(
-        tr(td(button("➕", onClick --> (_ => data.update(data => data :+ DataItem()))))),
+        tr(td(button("➕", onClick --> (_ => dataVar.update(data => data :+ DataItem()))))),
       ),
     )
   }
 
   def renderDataItem(id: DataItemID, item: Signal[DataItem]) = {
-    val labelUpdater = data.updater[String] { (data, newLabel) =>
+    val labelUpdater = dataVar.updater[String] { (data, newLabel) =>
       data.map(item => if item.id == id then item.copy(label = newLabel) else item)
     }
 
-    val valueUpdater = data.updater[Double] { (data, newValue) =>
+    val valueUpdater = dataVar.updater[Double] { (data, newValue) =>
       data.map(item => if item.id == id then item.copy(value = newValue) else item)
     }
 
     tr(
       td(inputForString(item.map(_.label), labelUpdater)),
       td(inputForDouble(item.map(_.value), valueUpdater)),
-      td(button("🗑️", onClick --> (_ => data.update(data => data.filter(_.id != id))))),
+      td(button("🗑️", onClick --> (_ => dataVar.update(data => data.filter(_.id != id))))),
     )
   }
 
@@ -100,29 +110,28 @@ object Main {
 
       onMountCallback { nodeCtx =>
         val ctx = nodeCtx.thisNode.ref
-        val chartConfiguration = ChartConfiguration()
-          .setType(ChartType.bar)
-          .setData(
-            ChartData()
-              .setDatasets(
-                js.Array(
-                  ChartDataSets()
-                    .setLabel("Value")
-                    .setBorderWidth(1)
-                )
-              )
-          )
-          .setOptions(
-            ChartOptions().setScales(
-              ChartScales().setYAxes(
-                js.Array(CommonAxe().setTicks(TickOptions().setBeginAtZero(true)))
-              )
-            )
-          )
-        optChart = Some(Chart.apply.newInstance2(ctx, chartConfiguration))
+        val chart = Chart.apply.newInstance2(ctx, new ChartConfiguration {
+          `type` = ChartType.bar
+          data = new ChartData {
+            datasets = js.Array(new {
+              label = "Value"
+              borderWidth = 1
+            })
+          }
+          options = new ChartOptions {
+            scales = new ChartScales {
+              yAxes = js.Array(new CommonAxe {
+                ticks = new TickOptions {
+                  beginAtZero = true
+                }
+              })
+            }
+          }
+        })
+        optChart = Some(chart)
       },
 
-      data --> { data =>
+      dataSignal --> { data =>
         for (chart <- optChart) {
           chart.data.labels = data.map(_.label).toJSArray
           chart.data.datasets.get(0).data = data.map(_.value).toJSArray
@@ -130,12 +139,5 @@ object Main {
         }
       },
     )
-  }
-
-  def main(args: Array[String]): Unit = {
-    // Laminar initialization boilerplate
-    documentEvents.onDomContentLoaded.foreach { _ =>
-      render(dom.document.querySelector("#app"), appElement)
-    } (unsafeWindowOwner)
   }
 }

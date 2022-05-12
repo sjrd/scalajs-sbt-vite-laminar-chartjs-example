@@ -1,6 +1,7 @@
 package testvite
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters.*
 
 import com.raquo.laminar.api.L.{*, given}
 
@@ -25,6 +26,7 @@ object Main {
       li("Sum of values: ", child.text <-- allValues.map(_.sum)),
       li("Average value: ", child.text <-- allValues.map(vs => vs.sum / vs.size)),
     ),
+    renderDataGraph(),
   )
 
   def renderDataTable() = {
@@ -83,6 +85,49 @@ object Main {
       },
       strValue.signal --> { valueStr =>
         valueStr.toDoubleOption.foreach(valueUpdater.onNext)
+      },
+    )
+  }
+
+  def renderDataGraph() = {
+    import typings.chartJs.mod.*
+
+    var optChart: Option[Chart] = None
+
+    canvas(
+      width := "100%",
+      height := "500px",
+
+      onMountCallback { nodeCtx =>
+        val ctx = nodeCtx.thisNode.ref
+        val chartConfiguration = ChartConfiguration()
+          .setType(ChartType.bar)
+          .setData(
+            ChartData()
+              .setDatasets(
+                js.Array(
+                  ChartDataSets()
+                    .setLabel("Value")
+                    .setBorderWidth(1)
+                )
+              )
+          )
+          .setOptions(
+            ChartOptions().setScales(
+              ChartScales().setYAxes(
+                js.Array(CommonAxe().setTicks(TickOptions().setBeginAtZero(true)))
+              )
+            )
+          )
+        optChart = Some(Chart.apply.newInstance2(ctx, chartConfiguration))
+      },
+
+      data --> { data =>
+        for (chart <- optChart) {
+          chart.data.labels = data.map(_.label).toJSArray
+          chart.data.datasets.get(0).data = data.map(_.value).toJSArray
+          chart.update()
+        }
       },
     )
   }

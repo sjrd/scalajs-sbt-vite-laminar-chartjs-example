@@ -106,28 +106,35 @@ object Main {
       width := "100%",
       height := "500px",
 
-      onMountCallback { nodeCtx =>
-        val ctx = nodeCtx.thisNode.ref
-        val chart = Chart.apply.newInstance2(ctx, new ChartConfiguration {
-          `type` = ChartType.bar
-          data = new ChartData {
-            datasets = js.Array(new {
-              label = "Value"
-              borderWidth = 1
-            })
-          }
-          options = new ChartOptions {
-            scales = new ChartScales {
-              yAxes = js.Array(new CommonAxe {
-                ticks = new TickOptions {
-                  beginAtZero = true
-                }
+      onMountUnmountCallback(
+        mount = { nodeCtx =>
+          val ctx = nodeCtx.thisNode.ref // the DOM HTMLCanvasElement
+          val chart = Chart.apply.newInstance2(ctx, new ChartConfiguration {
+            `type` = ChartType.bar
+            data = new ChartData {
+              datasets = js.Array(new {
+                label = "Value"
+                borderWidth = 1
               })
             }
-          }
-        })
-        optChart = Some(chart)
-      },
+            options = new ChartOptions {
+              scales = new ChartScales {
+                yAxes = js.Array(new CommonAxe {
+                  ticks = new TickOptions {
+                    beginAtZero = true
+                  }
+                })
+              }
+            }
+          })
+          optChart = Some(chart)
+        },
+        unmount = { thisNode =>
+          for (chart <- optChart)
+            chart.destroy()
+          optChart = None
+        }
+      ),
 
       dataSignal --> { data =>
         for (chart <- optChart) {

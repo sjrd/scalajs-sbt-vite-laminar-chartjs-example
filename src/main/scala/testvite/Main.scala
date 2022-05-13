@@ -25,7 +25,7 @@ object Main {
     renderOnDomContentLoaded(dom.document.querySelector("#app"), appElement())
   }
 
-  def appElement() = {
+  def appElement(): HtmlElement = {
     div(
       h1("Hello Vite!"),
       renderDataTable(),
@@ -37,7 +37,7 @@ object Main {
     )
   }
 
-  def renderDataTable() = {
+  def renderDataTable(): HtmlElement = {
     table(
       thead(
         tr(th("Label"), th("Value"), th("Action")),
@@ -53,7 +53,7 @@ object Main {
     )
   }
 
-  def renderDataItem(id: DataItemID, item: Signal[DataItem]) = {
+  def renderDataItem(id: DataItemID, item: Signal[DataItem]): HtmlElement = {
     val labelUpdater = dataVar.updater[String] { (data, newLabel) =>
       data.map(item => if item.id == id then item.copy(label = newLabel) else item)
     }
@@ -97,7 +97,7 @@ object Main {
     )
   }
 
-  def renderDataGraph() = {
+  def renderDataGraph(): HtmlElement = {
     import typings.chartJs.mod.*
 
     var optChart: Option[Chart] = None

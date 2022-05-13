@@ -112,7 +112,7 @@ object Main {
           val chart = Chart.apply.newInstance2(ctx, new ChartConfiguration {
             `type` = ChartType.bar
             data = new ChartData {
-              datasets = js.Array(new {
+              datasets = js.Array(new ChartDataSets {
                 label = "Value"
                 borderWidth = 1
               })

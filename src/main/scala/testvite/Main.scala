@@ -21,10 +21,8 @@ object Main {
   val allValues = dataSignal.map(_.map(_.value))
 
   def main(args: Array[String]): Unit = {
-    // Laminar initialization boilerplate
-    documentEvents.onDomContentLoaded.foreach { _ =>
-      render(dom.document.querySelector("#app"), appElement())
-    } (unsafeWindowOwner)
+    // Laminar initialization
+    renderOnDomContentLoaded(dom.document.querySelector("#app"), appElement())
   }
 
   def appElement() = {

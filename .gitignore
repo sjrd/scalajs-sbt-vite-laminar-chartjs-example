@@ -1,3 +1,6 @@
+# Scala outputs
+target/
+
 # Logs
 logs
 *.log

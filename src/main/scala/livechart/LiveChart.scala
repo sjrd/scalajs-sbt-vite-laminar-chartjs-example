@@ -30,11 +30,21 @@ object Main:
       ),
       h1("Hello Laminar!"),
       div(className := "card",
-        button(tpe := "button"),
+        counterButton(),
       ),
       p(className := "read-the-docs",
         "Click on the Vite logo to learn more",
       ),
     )
   end appElement
+
+  def counterButton(): Element =
+    val counter = Var(0)
+    button(
+      tpe := "button",
+      "count is ",
+      child.text <-- counter,
+      onClick --> { event => counter.update(c => c + 1) },
+    )
+  end counterButton
 end Main

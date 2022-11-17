@@ -20,6 +20,25 @@ def LiveChart(): Unit =
 end LiveChart
 
 object Main:
+  final class DataItemID
+
+  case class DataItem(id: DataItemID, label: String, value: Double)
+
+  object DataItem:
+    def apply(): DataItem = DataItem(DataItemID(), "?", Math.random())
+  end DataItem
+
+  type DataList = List[DataItem]
+
+  val dataVar: Var[DataList] = Var(List(DataItem(DataItemID(), "one", 1.0)))
+  val dataSignal = dataVar.signal
+
+  def addDataItem(item: DataItem): Unit =
+    dataVar.update(data => data :+ item)
+
+  def removeDataItem(id: DataItemID): Unit =
+    dataVar.update(data => data.filter(_.id != id))
+
   def appElement(): Element =
     div(
       a(href := "https://vitejs.dev", target := "_blank",

@@ -46,18 +46,18 @@ object Main:
     table(
       thead(tr(th("Label"), th("Value"), th("Action"))),
       tbody(
-        children <-- dataSignal.map(data => data.map { item =>
-          renderDataItem(item.id, item)
-        }),
+        children <-- dataSignal.split(_.id) { (id, initial, itemSignal) =>
+          renderDataItem(id, itemSignal)
+        },
       ),
       tfoot(tr(td(button("+", onClick --> (_ => addDataItem(DataItem())))))),
     )
   end renderDataTable
 
-  def renderDataItem(id: DataItemID, item: DataItem): Element =
+  def renderDataItem(id: DataItemID, itemSignal: Signal[DataItem]): Element =
     tr(
-      td(item.label),
-      td(item.value),
+      td(child.text <-- itemSignal.map(_.label)),
+      td(child.text <-- itemSignal.map(_.value)),
       td(button("🗑️", onClick --> (_ => removeDataItem(id)))),
     )
   end renderDataItem

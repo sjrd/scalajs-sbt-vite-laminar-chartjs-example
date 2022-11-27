@@ -57,11 +57,60 @@ object Main:
 
   def renderDataItem(id: DataItemID, itemSignal: Signal[DataItem]): Element =
     tr(
-      td(child.text <-- itemSignal.map(_.label)),
-      td(child.text <-- itemSignal.map(_.value)),
+      td(
+        inputForString(
+          itemSignal.map(_.label),
+          makeDataItemUpdater(id, { (item, newLabel) =>
+            item.copy(label = newLabel)
+          })
+        )
+      ),
+      td(
+        inputForDouble(
+          itemSignal.map(_.value),
+          makeDataItemUpdater(id, { (item, newValue) =>
+            item.copy(value = newValue)
+          })
+        )
+      ),
       td(button("🗑️", onClick --> (_ => removeDataItem(id)))),
     )
   end renderDataItem
+
+  def makeDataItemUpdater[A](id: DataItemID,
+      f: (DataItem, A) => DataItem): Observer[A] =
+    dataVar.updater { (data, newValue) =>
+      data.map { item =>
+        if item.id == id then f(item, newValue) else item
+      }
+    }
+  end makeDataItemUpdater
+
+  def inputForString(valueSignal: Signal[String],
+      valueUpdater: Observer[String]): Input =
+    input(
+      typ := "text",
+      value <-- valueSignal,
+      onInput.mapToValue --> valueUpdater,
+    )
+  end inputForString
+
+  def inputForDouble(valueSignal: Signal[Double],
+      valueUpdater: Observer[Double]): Input =
+    val strValue = Var[String]("")
+    input(
+      typ := "text",
+      value <-- strValue.signal,
+      onInput.mapToValue --> strValue,
+      valueSignal --> strValue.updater[Double] { (prevStr, newValue) =>
+        if prevStr.toDoubleOption.contains(newValue) then prevStr
+        else newValue.toString
+      },
+      strValue.signal --> { valueStr =>
+        valueStr.toDoubleOption.foreach(valueUpdater.onNext)
+      },
+    )
+  end inputForDouble
 
   /** Chart.js configuration for a bar chart with one dataset. */
   val chartConfig =

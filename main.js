@@ -1,2 +1,2 @@
 import './style.css'
-import '@scalaJSOutput/main.js'
+import 'scalajs:main.js'

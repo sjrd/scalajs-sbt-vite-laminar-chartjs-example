@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
-import scalaJSPlugin from "./vite-plugin-sbt-scalajs.mjs";
+import scalaJSPlugin from "@scala-js/vite-plugin-scalajs";
 
 // Tell Vite to replace references to `@scalaJSOutput` by the path computed above
 export default defineConfig({

@@ -25,4 +25,13 @@ final class Model:
 
   def removeDataItem(id: DataItemID): Unit =
     dataVar.update(data => data.filter(_.id != id))
+
+  def makeDataItemUpdater[A](id: DataItemID,
+      f: (DataItem, A) => DataItem): Observer[A] =
+    dataVar.updater { (data, newValue) =>
+      data.map { item =>
+        if item.id == id then f(item, newValue) else item
+      }
+    }
+  end makeDataItemUpdater
 end Model

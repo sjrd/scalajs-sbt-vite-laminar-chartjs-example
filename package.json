@@ -10,6 +10,11 @@
   },
   "devDependencies": {
     "@scala-js/vite-plugin-scalajs": "^1.0.0",
+    "@types/chart.js": "^2.9.29",
+    "typescript": "^4.9.5",
     "vite": "^4.1.0"
+  },
+  "dependencies": {
+    "chart.js": "^2.9.4"
   }
 }

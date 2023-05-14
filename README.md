@@ -22,6 +22,7 @@ Other software will be downloaded automatically by the commands below.
 Before doing anything, including before importing in an IDE, run
 
 ```
+$ cd test-vite-frontend
 $ npm install
 ```
 
@@ -40,6 +41,7 @@ $ sbt
 In the second one, start the Vite development server with
 
 ```
+$ cd test-vite-frontend
 $ npm run dev
 ...
 ```

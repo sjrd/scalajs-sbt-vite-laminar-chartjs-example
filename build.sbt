@@ -1,10 +1,14 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
+lazy val root = project
+    .in(file("."))
+    .aggregate(`test-vite-frontend`)
+
 val publicDev = taskKey[String]("output directory for `npm run dev`")
 val publicProd = taskKey[String]("output directory for `npm run build`")
 
-lazy val `test-vite` = project
-  .in(file("."))
+lazy val `test-vite-frontend` = project
+  .in(file("test-vite-frontend"))
   .enablePlugins(ScalaJSPlugin)
   .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
   .settings(

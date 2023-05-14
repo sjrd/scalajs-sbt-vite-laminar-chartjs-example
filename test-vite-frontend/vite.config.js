@@ -13,6 +13,7 @@ function printSbtTask(task) {
       "pipe", // StdOut.
       "inherit", // StdErr.
     ],
+    cwd: '..' // go back to project root sbt directory
   };
   const result = process.platform === 'win32'
     ? spawnSync("sbt.bat", args.map(x => `"${x}"`), {shell: true, ...options})

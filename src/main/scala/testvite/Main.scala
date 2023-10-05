@@ -102,7 +102,7 @@ object Main {
 
     var optChart: Option[Chart] = None
 
-    canvas(
+    canvasTag(
       width := "100%",
       height := "500px",
 

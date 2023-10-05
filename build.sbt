@@ -1,39 +1,30 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-val publicDev = taskKey[String]("output directory for `npm run dev`")
-val publicProd = taskKey[String]("output directory for `npm run build`")
-
-lazy val `test-vite` = project
-  .in(file("."))
-  .enablePlugins(ScalaJSPlugin)
+lazy val `test-vite` = project.in(file("."))
+  .enablePlugins(ScalaJSPlugin) // Enable the Scala.js plugin in this project
   .enablePlugins(ScalablyTypedConverterExternalNpmPlugin)
   .settings(
-    scalaVersion := "3.1.2",
+    scalaVersion := "3.3.1",
     scalacOptions ++= Seq("-encoding", "utf-8", "-deprecation", "-feature"),
 
+    // Tell Scala.js that this is an application with a main method
     scalaJSUseMainModuleInitializer := true,
+
+    /* Configure Scala.js to emit modules in the optimal way to
+     * connect to Vite's incremental reload.
+     * - emit ECMAScript modules
+     * - emit as many small modules as possible for classes in the "testvite" package
+     * - emit as few (large) modules as possible for all other classes
+     *   (in particular, for the standard library)
+     */
     scalaJSLinkerConfig ~= {
       _.withModuleKind(ModuleKind.ESModule)
         .withModuleSplitStyle(ModuleSplitStyle.SmallModulesFor(List("testvite")))
     },
 
-    externalNpm := {
-      //scala.sys.process.Process(List("npm", "install", "--silent", "--no-audit", "--no-fund"), baseDirectory.value).!
-      baseDirectory.value
-    },
+    // Depend on Laminar
+    libraryDependencies += "com.raquo" %%% "laminar" % "15.0.1",
 
-    libraryDependencies ++= Seq(
-      "com.raquo" %%% "laminar" % "0.14.2",
-    ),
-
-    publicDev := linkerOutputDirectory((Compile / fastLinkJS).value).getAbsolutePath(),
-    publicProd := linkerOutputDirectory((Compile / fullLinkJS).value).getAbsolutePath(),
+    // Tell ScalablyTyped that we manage `npm install` ourselves
+    externalNpm := baseDirectory.value,
   )
-
-def linkerOutputDirectory(v: Attributed[org.scalajs.linker.interface.Report]): File = {
-  v.get(scalaJSLinkerOutputDirectory.key).getOrElse {
-    throw new MessageOnlyException(
-        "Linking report was not attributed with output directory. " +
-        "Please report this as a Scala.js bug.")
-  }
-}

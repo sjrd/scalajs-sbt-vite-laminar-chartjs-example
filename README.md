@@ -8,6 +8,11 @@ This is an example of putting together:
 * [Laminar](https://laminar.dev/)
 * [Chart.js](https://www.chartjs.org/), statically typed with [ScalablyTyped](https://scalablytyped.org/)
 
+If you don't want the project walkthrough in its entirety, you can specify up to which stage of the guide to include by cloning a specific branch:
+* [Vite](https://github.com/sjrd/scalajs-sbt-vite-laminar-chartjs-example/tree/scalajs-vite-end-state)
+* [Vite + Laminar](https://github.com/sjrd/scalajs-sbt-vite-laminar-chartjs-example/tree/laminar-end-state)
+* [Vite + Laminar + ScalablyTyped](https://github.com/sjrd/scalajs-sbt-vite-laminar-chartjs-example/tree/scalablytyped-end-state)
+
 ## Install
 
 You need to explicitly install the following software:
